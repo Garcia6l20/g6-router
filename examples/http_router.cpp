@@ -52,34 +52,32 @@ struct responder {
 };
 
 namespace route {
-  template <auto pattern, typename HandlerT>
+  template <auto pattern, http::verb method, typename HandlerT>
   struct handler : g6::router::detail::handler<pattern, HandlerT> {
     using base = g6::router::detail::handler<pattern, HandlerT>;
 
-    handler(http::verb method, HandlerT &&handler) noexcept
-        : base{std::forward<HandlerT>(handler)}
-        , method_{method} {}
+    handler(HandlerT &&handler) noexcept
+        : base{std::forward<HandlerT>(handler)} {}
+
     using base::matches;
+
     template <typename ContextT, typename ArgsT>
     std::optional<typename base::result_t> operator()(ContextT &context, std::string_view path, ArgsT &&args) {
-      if (std::get<http::verb>(args) == method_) {
+      if (std::get<http::verb>(args) == method) {
         return base::operator()(context, path, std::forward<ArgsT>(args));
       } else {
         return {};
       }
     }
-
-  private:
-    http::verb method_;
   };
 
   template <ctll::fixed_string pattern, typename HandlerT>
   constexpr auto get(HandlerT &&handler) noexcept {
-    return route::handler<pattern, HandlerT>{http::verb::get, std::forward<HandlerT>(handler)};
+    return route::handler<pattern, http::verb::get, HandlerT>{std::forward<HandlerT>(handler)};
   }
   template <ctll::fixed_string pattern, typename HandlerT>
   constexpr auto post(HandlerT &&handler) noexcept {
-    return route::handler<pattern, HandlerT>{http::verb::post, std::forward<HandlerT>(handler)};
+    return route::handler<pattern, http::verb::post, HandlerT>{std::forward<HandlerT>(handler)};
   }
 }// namespace route
 

@@ -25,12 +25,12 @@ namespace g6::router {
     concept is_tuple = specialization_of<T, std::tuple>;
 
     template <typename T, typename Tuple>
-    struct tuple_contains;
+    struct tuple_contains : std::false_type {};
 
     template <typename T, typename... Us>
     struct tuple_contains<T, std::tuple<Us...>> : std::disjunction<std::is_same<T, Us>...> {};
 
-    template <typename T, typename Tuple>
+    template <typename Tuple, typename T>
     constexpr bool tuple_contains_v = tuple_contains<T, Tuple>::value;
 
     template <typename TupleT>
@@ -334,7 +334,7 @@ namespace g6::router {
             } else if constexpr (detail::tuple_contains_v<ArgsT, std::reference_wrapper<typename ParamT::type>>) {
               std::get<type_idx>(data) = std::get<typename ParamT::type &>(args);
             } else {
-              std::get<type_idx>(data) = std::get<typename ParamT::type &>(context);
+              std::get<type_idx>(data) = std::get<typename ParamT::type>(context);
             }
             _load_data<type_idx + 1, match_idx>(context, data, match, std::forward<ArgsT>(args));
           } else {
