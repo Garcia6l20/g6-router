@@ -7,6 +7,7 @@
 #include <charconv>
 #include <filesystem>
 #include <functional>
+#include <optional>
 
 namespace g6::router {
 
@@ -379,7 +380,7 @@ namespace g6::router {
   }// namespace detail
 
   template <ctll::fixed_string route, typename FnT>
-  constexpr auto on(FnT &&fn) {
+  constexpr auto on(FnT &&fn) noexcept {
     return detail::handler<route, FnT>{std::forward<FnT>(fn)};
   }
 
