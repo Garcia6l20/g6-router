@@ -78,14 +78,14 @@ namespace g6::router {
 
         template <typename FirstT, typename... RestT>
         struct builder<FirstT, RestT...> {
-          constexpr auto operator()() { return std::tuple_cat(cond_type<FirstT, RestT...>{}, builder<RestT...>{}()); }
+          using type = decltype(std::tuple_cat(cond_type<FirstT, RestT...>{}, std::declval<typename builder<RestT...>::type>()));
         };
 
         template <typename LastT>
         struct builder<LastT> {
-          constexpr auto operator()() { return std::tuple<LastT>(); }
+          using type = std::tuple<LastT>;
         };
-        using type = decltype(builder<Types...>{}());
+        using type = typename builder<Types...>::type;
       };
     }// namespace impl
 
@@ -269,10 +269,16 @@ namespace g6::router {
   template <>
   struct route_parameter<double> {
     static constexpr int group_count() { return 0; }
-    static double        load(const std::string_view &input) {
+    static double        load(const std::string_view &input)
+    {
+#if not __clang__ and __GNUC__ >= 11
       double result = 0;
       std::from_chars(input.data(), input.data() + input.size(), result);
       return result;
+#else
+      char *p_end = const_cast<char *>(input.data() + input.size());
+      return ::strtod(input.data(), &p_end);
+#endif
     }
     static constexpr auto pattern = ctll::fixed_string{R"(\d+\.?\d*)"};
   };
@@ -407,7 +413,7 @@ namespace g6::router {
 
     template <typename... HandlerArgsT>
     constexpr auto operator()(std::string_view path, HandlerArgsT &&... args) {
-      result_t output;
+      std::optional<result_t> output;
       detail::for_each(handlers_, [&](auto &&handler) {
         if (auto result = handler(context_, path, std::make_tuple(std::forward<HandlerArgsT>(args)...)); result) {
           output = std::move(result.value());
@@ -415,7 +421,8 @@ namespace g6::router {
         }
         return detail::continue_;
       });
-      return output;
+      assert(output);
+      return std::move(output).value();
     }
 
   protected:
