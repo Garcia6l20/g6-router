@@ -7,7 +7,8 @@ project(g6-router
 if (NOT G6_CMAKE)
   include(FetchContent)
   FetchContent_declare(g6-cmake-fetch
-    GIT_REPOSITORY https://github.com/Garcia6L20/g6-cmake.git)
+    GIT_REPOSITORY https://github.com/Garcia6L20/g6-cmake.git
+    GIT_TAG main)
   FetchContent_makeAvailable(g6-cmake-fetch)
 endif()
 
