@@ -1,0 +1,10 @@
+[build_requires]
+catch2/2.13.4
+
+[requires]
+ctre/3.3.2
+
+[generators]
+cmake_find_package
+cmake_paths
+cmake
