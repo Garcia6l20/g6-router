@@ -1,8 +1,8 @@
 [build_requires]
-catch2/2.13.4
+catch2/2.13.8
 
 [requires]
-ctre/3.3.2
+ctre/3.6
 
 [generators]
 cmake_find_package

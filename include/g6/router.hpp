@@ -78,7 +78,8 @@ namespace g6::router {
 
         template <typename FirstT, typename... RestT>
         struct builder<FirstT, RestT...> {
-          using type = decltype(std::tuple_cat(cond_type<FirstT, RestT...>{}, std::declval<typename builder<RestT...>::type>()));
+          using type =
+            decltype(std::tuple_cat(cond_type<FirstT, RestT...>{}, std::declval<typename builder<RestT...>::type>()));
         };
 
         template <typename LastT>
@@ -269,8 +270,7 @@ namespace g6::router {
   template <>
   struct route_parameter<double> {
     static constexpr int group_count() { return 0; }
-    static double        load(const std::string_view &input)
-    {
+    static double        load(const std::string_view &input) {
 #if not __clang__ and __GNUC__ >= 11
       double result = 0;
       std::from_chars(input.data(), input.data() + input.size(), result);
@@ -301,7 +301,7 @@ namespace g6::router {
                    operator bool() { return elem_ != nullptr; }
     decltype(auto) operator*() { return *elem_; }
     decltype(auto) operator->() { return elem_; }
-    auto &         operator=(T &elem) {
+    auto          &operator=(T &elem) {
       elem_ = &elem;
       return *this;
     }
@@ -324,8 +324,9 @@ namespace g6::router {
 
       FnT fn_;
 
-      using builder_type                  = ctre::regex_builder<route>;
-      static constexpr inline auto match_ = ctre::regex_match_t<typename builder_type::type>();
+      using builder_type = ctre::regex_builder<route>;
+      static constexpr inline auto match_ =
+        ctre::regular_expression<typename builder_type::type, ctre::match_method, ctre::singleline>();
       std::invoke_result_t<decltype(match_), std::string_view> match_result_;
 
       template <int type_idx, int match_idx, typename MatcherT, typename ContextT, typename ArgsT>
@@ -396,10 +397,10 @@ namespace g6::router {
     using handlers_t = std::tuple<HandlersT...>;
 
   public:
-    constexpr explicit router(HandlersT &&... handlers) noexcept
+    constexpr explicit router(HandlersT &&...handlers) noexcept
         : handlers_{std::forward<HandlersT>(handlers)...} {}
 
-    constexpr explicit router(ContextT context, HandlersT &&... handlers) noexcept
+    constexpr explicit router(ContextT context, HandlersT &&...handlers) noexcept
         : context_{std::move(context)}
         , handlers_{std::forward<HandlersT>(handlers)...} {}
 
@@ -412,7 +413,7 @@ namespace g6::router {
       std::tuple_element_t<0, handlers_return_tuple>, detail::tuple_to_variant_t<handlers_return_tuple>>;
 
     template <typename... HandlerArgsT>
-    constexpr auto operator()(std::string_view path, HandlerArgsT &&... args) {
+    constexpr auto operator()(std::string_view path, HandlerArgsT &&...args) {
       std::optional<result_t> output;
       detail::for_each(handlers_, [&](auto &&handler) {
         if (auto result = handler(context_, path, std::make_tuple(std::forward<HandlerArgsT>(args)...)); result) {
@@ -428,6 +429,5 @@ namespace g6::router {
   protected:
     handlers_t handlers_;
   };
-  // template <typename TupleT, typename...HandlersT>
 
-}// namespace g6
+}// namespace g6::router
