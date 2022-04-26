@@ -301,7 +301,7 @@ namespace g6::router {
                    operator bool() { return elem_ != nullptr; }
     decltype(auto) operator*() { return *elem_; }
     decltype(auto) operator->() { return elem_; }
-    auto          &operator=(T &elem) {
+    auto &         operator=(T &elem) {
       elem_ = &elem;
       return *this;
     }
@@ -345,7 +345,8 @@ namespace g6::router {
             }
             _load_data<type_idx + 1, match_idx>(context, data, match, std::forward<ArgsT>(args));
           } else {
-            std::get<type_idx>(data) = route_parameter<ParamT>::load(match.template get<match_idx>());
+            auto tmp = match.template get<match_idx>();
+            if (tmp.size()) { std::get<type_idx>(data) = route_parameter<ParamT>::load(tmp); }
             _load_data<type_idx + 1, match_idx + route_parameter<ParamT>::group_count() + 1>(context, data, match,
                                                                                              std::forward<ArgsT>(args));
           }
@@ -360,7 +361,7 @@ namespace g6::router {
 
     public:
       constexpr bool matches(std::string_view url) {
-        match_result_ = std::move(match_(url));
+        match_result_ = std::move(handler::match_(url));
         return bool(match_result_);
       }
 
