@@ -16,10 +16,15 @@ find_package(ctre REQUIRED)
 
 add_library(${PROJECT_NAME} INTERFACE)
 target_link_libraries(${PROJECT_NAME} INTERFACE ctre::ctre)
-target_include_directories(${PROJECT_NAME} INTERFACE include)
+target_include_directories(${PROJECT_NAME} INTERFACE
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 add_library(g6::router ALIAS ${PROJECT_NAME})
 
 enable_testing()
 if (BUILD_TESTING)
   add_subdirectory(tests)
 endif()
+
+install(DIRECTORY include/ DESTINATION include
+  FILES_MATCHING PATTERN *)
