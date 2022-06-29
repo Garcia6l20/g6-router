@@ -15,6 +15,10 @@ endif()
 find_package(ctre REQUIRED)
 
 add_library(${PROJECT_NAME} INTERFACE)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+  EXPORT_NAME router)
+
 target_link_libraries(${PROJECT_NAME} INTERFACE ctre::ctre)
 target_include_directories(${PROJECT_NAME} INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
