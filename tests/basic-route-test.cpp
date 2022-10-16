@@ -4,7 +4,7 @@
 
 #include <g6/router.hpp>
 
-TEST_CASE("basic router usage", "[g6][router][basic]") {
+TEST_CASE("g6::router basic usage", "[g6][router][basic]") {
   g6::router::router test_router{
     g6::router::on<R"(/echo/(\w+))">([](const std::string &value) -> std::string { return value; }),
     g6::router::on<R"(.*)">([]() -> std::string { return "not found"; })};
@@ -12,7 +12,7 @@ TEST_CASE("basic router usage", "[g6][router][basic]") {
   REQUIRE(test_router("/this/does/not/exist") == "not found");
 }
 
-TEST_CASE("global context router usage", "[g6][router][context]") {
+TEST_CASE("g6::router global context usage", "[g6][router][context]") {
   struct session {
     int id = 24;
   };
@@ -26,7 +26,7 @@ TEST_CASE("global context router usage", "[g6][router][context]") {
   REQUIRE(test_router("/this/does/not/exist") == "not found");
 }
 
-SCENARIO("local context router usage", "[g6][router][context]") {
+SCENARIO("g6::router local context usage", "[g6][router][context]") {
   struct session {
     int id = 24;
   };
